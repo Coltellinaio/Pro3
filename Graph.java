@@ -138,21 +138,22 @@ public class Graph {
         int start = nameToIndex.get(v1);
         int goal = nameToIndex.get(v2);
 
-        // We'll keep track of parent to reconstruct path
         int n = adjacencyList.size();
         boolean[] visited = new boolean[n];
         int[] parent = new int[n];
-        Arrays.fill(parent, -1);
+
+        for (int i = 0; i < parent.length; i++) {
+            parent[i] = -1;
+        }
 
         Deque<Integer> queue = new ArrayDeque<>();
         visited[start] = true;
         queue.offer(start);
 
-        // Standard BFS, but our adjacency lists are already sorted by weight
         while (!queue.isEmpty()) {
             int current = queue.poll();
             if (current == goal) {
-                // Reconstruct path with weights
+                // Ağırlıklarla birlikte yolu yeniden oluştur
                 printPathWithWeightsBFS(parent, start, goal);
                 return;
             }
@@ -165,8 +166,7 @@ public class Graph {
                 }
             }
         }
-
-        System.out.println(v1 + " --x-- " + v2 + " (no BFS path found)");
+        System.out.println("Between " + v1 + " ve " + v2 + "contains no way.");
     }
 
     // Helper to reconstruct the BFS path and print edges
