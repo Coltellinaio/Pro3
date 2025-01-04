@@ -1,13 +1,11 @@
 import java.util.Scanner;
 
 public class Main {
-
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         Graph graph = new Graph();
         graph.ReadGraphFromFile("graph.txt");
         boolean cont = false;
-
         while (!cont) {
             printMenu();
             System.out.print("Enter your choice :");
