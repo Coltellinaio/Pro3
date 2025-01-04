@@ -152,11 +152,8 @@ public class Graph {
 
         while (!queue.isEmpty()) {
             int current = queue.poll();
-            if (current == goal) {
-                // Ağırlıklarla birlikte yolu yeniden oluştur
-                printPathWithWeightsBFS(parent, start, goal);
-                return;
-            }
+            if (current == goal)
+                System.out.println("Path is: " + printPathWithWeightsBFS(parent, start, goal));
             for (Edge edge : adjacencyList.get(current)) {
                 int neighbor = edge.from;
                 if (!visited[neighbor]) {
@@ -169,40 +166,39 @@ public class Graph {
         System.out.println("Between " + v1 + " ve " + v2 + "contains no way.");
     }
 
-    // Helper to reconstruct the BFS path and print edges
-    private void printPathWithWeightsBFS(int[] parent, int start, int goal) {
-        // Reconstruct path
+    private String printPathWithWeightsBFS(int[] parent, int start, int goal) {
         List<Integer> path = new ArrayList<>();
         int cur = goal;
         while (cur != -1) {
             path.add(cur);
             cur = parent[cur];
         }
-        Collections.reverse(path);
 
-        // Print the names and weights
-        // We have the actual vertices, so we must look up adjacency to find weights
-        // between consecutive vertices in 'path'
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < path.size(); i++) {
-            sb.append(indexToName.get(path.get(i)));
-            if (i < path.size() - 1) {
-                // find the weight from path[i] to path[i+1]
-                int w = getWeight(path.get(i), path.get(i + 1));
-                sb.append(" -").append(w).append("-> ");
+        List<Integer> reversedPath = new ArrayList<>();
+        for (int i = path.size() - 1; i >= 0; i--) {
+            reversedPath.add(path.get(i));
+        }
+
+        String pathStr = "";
+        for (int i = 0; i < reversedPath.size(); i++) {
+            pathStr += indexToName.get(reversedPath.get(i));
+            if (i < reversedPath.size() - 1) {
+                int w = getWeight(reversedPath.get(i), reversedPath.get(i + 1));
+                pathStr += " -" + w + "-> ";
             }
         }
-        System.out.println("BFS path: " + sb.toString());
+        return pathStr;
     }
 
-    // Quick helper to get the weight between two neighbors
+    // Aşağıdaki metod, iki düğüm arasındaki kenarın ağırlığını bulmak için
+    // kullanılır
     private int getWeight(int from, int to) {
         for (Edge e : adjacencyList.get(from)) {
             if (e.from == to) {
-                return e.to;
+                return e.to; // `Edge.from` hedef düğümü, `Edge.to` ise ağırlığı temsil ediyor
             }
         }
-        return -1; // not found
+        return -1; // Bulunamadıysa
     }
 
     // -------------------------------------------------------------
