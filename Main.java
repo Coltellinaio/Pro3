@@ -15,6 +15,9 @@ public class Main {
                 case "1":
                     System.out.println("The graph is " + (graph.IsDirected() ? "" : "not ") + "directed.");
                     break;
+
+                case "is":
+                    graph.IsThereAPath(scanner.next(), scanner.next());
                 case "2":
                     // Perform BFS from a source to a destination
                     System.out.print("Enter source vertex for BFS: ");

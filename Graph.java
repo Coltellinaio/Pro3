@@ -86,11 +86,6 @@ public class Graph {
             }
             br.close();
 
-            // After reading the file, we may want to sort adjacency lists by weight
-            for (List<Edge> edges : adjacencyList) {
-                edges.sort(Comparator.comparingInt(e -> e.to));
-            }
-
         } catch (Exception e) {
             System.out.println("Error reading file: " + e.getMessage());
         }
@@ -107,7 +102,7 @@ public class Graph {
         int start = nameToIndex.get(v1);
         int goal = nameToIndex.get(v2);
 
-        // Use a simple queue-based BFS (unweighted style) or DFS
+        // CAHNGE THİS IMPLEMENT
         boolean[] visited = new boolean[adjacencyList.size()];
         Deque<Integer> queue = new ArrayDeque<>();
         queue.add(start);
