@@ -4,22 +4,17 @@ public class Main {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        // Initialize the graph (change 'false' to 'true' if you want a directed graph)
         Graph graph = new Graph();
         graph.ReadGraphFromFile("graph.txt");
-        System.out.println("Welcome to the Graph Operations Menu!");
-        System.out.println("----------------------------------------");
+        boolean cont = false;
 
-        boolean exit = false;
-
-        while (!exit) {
+        while (!cont) {
             printMenu();
-            System.out.print("Enter your choice (1-11): ");
+            System.out.print("Enter your choice :");
             String choice = scanner.nextLine().trim();
 
             switch (choice) {
                 case "1":
-                    // Check if the graph is directed
                     System.out.println("The graph is " + (graph.IsDirected() ? "" : "not ") + "directed.");
                     break;
                 case "2":
@@ -69,7 +64,7 @@ public class Main {
                     System.out.println("Neighbors of " + neighborVertex + ": " + graph.Neighbors(neighborVertex));
                     break;
                 case "7":
-                    // Find vertex(es) with the highest degree
+                    // Find vertexs with the highest degree
                     System.out.println("Vertex/Vehicles with the highest degree: " + graph.HighestDegree());
                     break;
                 case "8":
@@ -99,23 +94,18 @@ public class Main {
                     break;
                 case "11":
                     // Exit the menu
-                    exit = true;
-                    System.out.println("Exiting the Graph Operations Menu. Goodbye!");
+                    cont = true;
                     break;
                 default:
                     System.out.println("Invalid choice. Please select a valid option (1-11).");
             }
+            cont = clearConsole();
 
-            System.out.println("----------------------------------------");
         }
-
         scanner.close();
     }
 
-    /**
-     * Prints the interactive menu options.
-     */
-    private static void printMenu() {
+    final static void printMenu() {
         System.out.println("Please select an operation:");
         System.out.println("1. Check if the graph is directed");
         System.out.println("2. Perform BFS from a source to a destination");
@@ -128,5 +118,27 @@ public class Main {
         System.out.println("9. Check if there's a cycle involving a vertex");
         System.out.println("10. Find the number of vertices in a vertex's connected component");
         System.out.println("11. Exit");
+    }
+
+    public static boolean clearConsole() { // CHATGPT
+        System.out.print("back(b) / exit(e) :");
+        Scanner scanner = new Scanner(System.in);
+        String choice = scanner.nextLine();
+        if (choice.equals("b")) {
+            try {
+                if (System.getProperty("os.name").toLowerCase().contains("windows")) {
+                    new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+                } else {
+                    System.out.print("\033[H\033[2J");
+                    System.out.flush();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else if (choice.equals("e")) {
+            return true;
+        }
+        return false;
+
     }
 }

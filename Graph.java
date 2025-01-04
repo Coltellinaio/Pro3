@@ -4,28 +4,22 @@ import java.util.*;
 public class Graph {
 
     // We will map each city name (String) to an integer index.
-    private Map<String, Integer> nameToIndex;
+    private Map<String, Integer> nameToIndex = new HashMap<>();
     // We also keep the reverse mapping if we want to recover the name by index.
-    private List<String> indexToName;
-
+    private List<String> indexToName = new ArrayList<>();
     // adjacencyList[v] will hold a list of edges going out from vertex v
-    private List<List<Edge>> adjacencyList;
+    private List<List<Edge>> adjacencyList = new ArrayList<>();
+
     private boolean isDirected;
 
     private static class Edge {
+        int from;
         int to;
-        int weight;
 
-        public Edge(int to, int weight) {
+        public Edge(int from, int to) {
+            this.from = from;
             this.to = to;
-            this.weight = weight;
         }
-    }
-
-    public Graph() {
-        this.nameToIndex = new HashMap<>();
-        this.indexToName = new ArrayList<>();
-        this.adjacencyList = new ArrayList<>();
     }
 
     /**
@@ -94,7 +88,7 @@ public class Graph {
 
             // After reading the file, we may want to sort adjacency lists by weight
             for (List<Edge> edges : adjacencyList) {
-                edges.sort(Comparator.comparingInt(e -> e.weight));
+                edges.sort(Comparator.comparingInt(e -> e.to));
             }
 
         } catch (Exception e) {
@@ -125,7 +119,7 @@ public class Graph {
                 return true;
             }
             for (Edge edge : adjacencyList.get(current)) {
-                int neighbor = edge.to;
+                int neighbor = edge.from;
                 if (!visited[neighbor]) {
                     visited[neighbor] = true;
                     queue.add(neighbor);
@@ -168,7 +162,7 @@ public class Graph {
                 return;
             }
             for (Edge edge : adjacencyList.get(current)) {
-                int neighbor = edge.to;
+                int neighbor = edge.from;
                 if (!visited[neighbor]) {
                     visited[neighbor] = true;
                     parent[neighbor] = current;
@@ -209,8 +203,8 @@ public class Graph {
     // Quick helper to get the weight between two neighbors
     private int getWeight(int from, int to) {
         for (Edge e : adjacencyList.get(from)) {
-            if (e.to == to) {
-                return e.weight;
+            if (e.from == to) {
+                return e.to;
             }
         }
         return -1; // not found
@@ -249,7 +243,7 @@ public class Graph {
         // If you want edges visited in ascending weight, sort adjacency by weight
         // (already sorted in the constructor)
         for (Edge edge : adjacencyList.get(current)) {
-            int neighbor = edge.to;
+            int neighbor = edge.from;
             if (!visited[neighbor]) {
                 path.add(neighbor);
                 if (dfsHelper(neighbor, goal, visited, path)) {
@@ -310,8 +304,8 @@ public class Graph {
         visited[current] = true;
 
         for (Edge e : adjacencyList.get(current)) {
-            if (!visited[e.to]) {
-                dfsAllPaths(e.to, goal, costSoFar + e.weight, visited);
+            if (!visited[e.from]) {
+                dfsAllPaths(e.from, goal, costSoFar + e.to, visited);
             }
         }
         visited[current] = false;
@@ -345,8 +339,8 @@ public class Graph {
         }
         visited[current] = true;
         for (Edge e : adjacencyList.get(current)) {
-            if (!visited[e.to]) {
-                countAllPaths(e.to, goal, visited);
+            if (!visited[e.from]) {
+                countAllPaths(e.from, goal, visited);
             }
         }
         visited[current] = false;
@@ -363,7 +357,7 @@ public class Graph {
         }
         int v = nameToIndex.get(v1);
         for (Edge e : adjacencyList.get(v)) {
-            result.add(indexToName.get(e.to));
+            result.add(indexToName.get(e.from));
         }
         return result;
     }
@@ -398,15 +392,15 @@ public class Graph {
     public boolean IsDirected() {
         for (int u = 0; u < adjacencyList.size(); u++) {
             for (Edge edge : adjacencyList.get(u)) {
-                int v = edge.to;
-                int weight = edge.weight;
+                int v = edge.from;
+                int weight = edge.to;
 
                 // Flag to check if the reverse edge exists
                 boolean reverseEdgeExists = false;
 
                 // Iterate through the adjacency list of vertex v to find the reverse edge
                 for (Edge reverseEdge : adjacencyList.get(v)) {
-                    if (reverseEdge.to == u && reverseEdge.weight == weight) {
+                    if (reverseEdge.from == u && reverseEdge.to == weight) {
                         reverseEdgeExists = true;
                         break;
                     }
@@ -434,7 +428,7 @@ public class Graph {
         int a = nameToIndex.get(v1);
         int b = nameToIndex.get(v2);
         for (Edge e : adjacencyList.get(a)) {
-            if (e.to == b) {
+            if (e.from == b) {
                 return true;
             }
         }
@@ -467,7 +461,7 @@ public class Graph {
         }
         visited[current] = true;
         for (Edge e : adjacencyList.get(current)) {
-            int neighbor = e.to;
+            int neighbor = e.from;
             // We can allow returning to 'start' even if visited[start] is true,
             // but must not return to any other visited vertex
             if (neighbor == start && depth > 0) {
@@ -502,9 +496,9 @@ public class Graph {
         while (!queue.isEmpty()) {
             int current = queue.poll();
             for (Edge e : adjacencyList.get(current)) {
-                if (!visited[e.to]) {
-                    visited[e.to] = true;
-                    queue.add(e.to);
+                if (!visited[e.from]) {
+                    visited[e.from] = true;
+                    queue.add(e.from);
                     count++;
                 }
             }
