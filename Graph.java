@@ -359,16 +359,16 @@ public class Graph {
     // -------------------------------------------------------------
     public List<String> HighestDegree() {
         int maxDeg = 0;
-        // compute out-degree
-        int[] degrees = new int[adjacencyList.size()];
+        int[] AllDegrees = new int[adjacencyList.size()];
         for (int i = 0; i < adjacencyList.size(); i++) {
-            degrees[i] = adjacencyList.get(i).size();
-            maxDeg = Math.max(maxDeg, degrees[i]);
+            AllDegrees[i] = adjacencyList.get(i).size();
+            if (AllDegrees[i] > maxDeg)
+                maxDeg = AllDegrees[i];
         }
 
         List<String> result = new ArrayList<>();
-        for (int i = 0; i < degrees.length; i++) {
-            if (degrees[i] == maxDeg) {
+        for (int i = 0; i < AllDegrees.length; i++) {
+            if (AllDegrees[i] == maxDeg) {
                 result.add(indexToName.get(i));
             }
         }
@@ -439,11 +439,6 @@ public class Graph {
         return hasCycleDFS(start, start, visited, 0);
     }
 
-    /**
-     * DFS to detect a cycle that returns to 'start'. We keep track of
-     * how many vertices we’ve visited so far. If we come back to 'start'
-     * after at least 1 edge, that’s a cycle.
-     */
     private boolean hasCycleDFS(int current, int start, boolean[] visited, int depth) {
         if (depth > 0 && current == start) {
             return true; // cycle found
