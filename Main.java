@@ -15,7 +15,6 @@ public class Main {
                 case "1":
                     System.out.println("The graph is " + (graph.IsDirected() ? "" : "not ") + "directed.");
                     break;
-
                 case "2":
                     System.out.print("Enter source vertex :");
                     String c2_v1 = scanner.nextLine().trim();
@@ -26,6 +25,7 @@ public class Main {
                     else
                         System.out.println("There is no path between " + c2_v1 + " and " + c2_v2 + ".");
                     break;
+
                 case "3":
                     System.out.print("Enter source vertex for BFS: ");
                     String bfsSource = scanner.nextLine().trim();
@@ -33,8 +33,8 @@ public class Main {
                     String bfsDest = scanner.nextLine().trim();
                     graph.BFSfromTo(bfsSource, bfsDest);
                     break;
+
                 case "4":
-                    // Perform DFS from a source to a destination
                     System.out.print("Enter source vertex for DFS: ");
                     String dfsSource = scanner.nextLine().trim();
                     System.out.print("Enter destination vertex for DFS: ");
@@ -42,7 +42,6 @@ public class Main {
                     graph.DFSfromTo(dfsSource, dfsDest);
                     break;
                 case "5":
-                    // Find the shortest path length between two vertices
                     System.out.print("Enter source vertex for shortest path: ");
                     String spSource = scanner.nextLine().trim();
                     System.out.print("Enter destination vertex for shortest path: ");
@@ -56,7 +55,6 @@ public class Main {
                     }
                     break;
                 case "6":
-                    // Count the number of simple paths between two vertices
                     System.out.print("Enter source vertex to count paths: ");
                     String pathSource = scanner.nextLine().trim();
                     System.out.print("Enter destination vertex to count paths: ");
@@ -66,17 +64,14 @@ public class Main {
                             "Number of simple paths from " + pathSource + " to " + pathDest + " is: " + numberOfPaths);
                     break;
                 case "7":
-                    // List neighbors of a vertex
                     System.out.print("Enter vertex to list its neighbors: ");
                     String neighborVertex = scanner.nextLine().trim();
                     System.out.println("Neighbors of " + neighborVertex + ": " + graph.Neighbors(neighborVertex));
                     break;
                 case "8":
-                    // Find vertexs with the highest degree
                     System.out.println("Vertex/Vehicles with the highest degree: " + graph.HighestDegree());
                     break;
                 case "9":
-                    // Check if two vertices are adjacent
                     System.out.print("Enter first vertex to check adjacency: ");
                     String adjV1 = scanner.nextLine().trim();
                     System.out.print("Enter second vertex to check adjacency: ");
@@ -85,7 +80,6 @@ public class Main {
                     System.out.println(adjV1 + " and " + adjV2 + " are " + (adjacent ? "" : "not ") + "adjacent.");
                     break;
                 case "10":
-                    // Check if there's a cycle involving a vertex
                     System.out.print("Enter vertex to check for a cycle: ");
                     String cycleVertex = scanner.nextLine().trim();
                     boolean hasCycle = graph.IsThereACycle(cycleVertex);
@@ -93,7 +87,6 @@ public class Main {
                             "There is " + (hasCycle ? "" : "no ") + "cycle involving vertex " + cycleVertex + ".");
                     break;
                 case "11":
-                    // Find the number of vertices in a vertex's connected component
                     System.out.print("Enter vertex to find its connected component size: ");
                     String componentVertex = scanner.nextLine().trim();
                     int componentSize = graph.NumberOfVerticesInComponent(componentVertex);
@@ -128,10 +121,11 @@ public class Main {
         System.out.println("12. Exit");
     }
 
-    public static boolean clearConsole() { // CHATGPT
+    public static boolean clearConsole() { // Clear console when runned on terminal
         System.out.print("back(b) / exit(e) :");
         Scanner scanner = new Scanner(System.in);
         String choice = scanner.nextLine();
+        scanner.close();
         if (choice.equals("b")) {
             try {
                 if (System.getProperty("os.name").toLowerCase().contains("windows")) {

@@ -316,50 +316,42 @@ public class Graph {
     // Count how many distinct simple paths exist from v1 to v2
     // -------------------------------------------------------------
     public int NumberOfSimplePaths(String v1, String v2) {
-        // Eğer graf içinde bu isimlere sahip düğümler yoksa, 0 döndür.
+        // If either vertex doesn't exist, there are no paths.
         if (!nameToIndex.containsKey(v1) || !nameToIndex.containsKey(v2)) {
             return 0;
         }
 
-        // Kaynak ve hedef vertex'in indekslerini al
         int start = nameToIndex.get(v1);
         int goal = nameToIndex.get(v2);
 
-        // Ziyaret dizisi
+        // Keep track of visited vertices to avoid revisiting them in the same path.
         boolean[] visited = new boolean[adjacencyList.size()];
 
-        // Sınıf düzeyinde tanımlanmış bir sayaç (örneğin: private int pathCount;)
-        // olduğundan, burada sıfırlıyoruz.
+        // pathCount is a class-level integer we reset each time.
         pathCount = 0;
 
-        // Tüm basit yolları sayacak metodu çağır
+        // Recursively explore all simple paths from 'start' to 'goal'.
         countAllPaths(start, goal, visited);
 
-        // Sonuç döndür
         return pathCount;
     }
 
     private void countAllPaths(int current, int goal, boolean[] visited) {
-        // Hedefe ulaştıysak, bir yol bulduk demektir
-        if (current == goal) {
-            pathCount++;
-            return;
+        // If we've reached the goal, we found a complete path. Increment and return.
+        if (!visited[current]) {
+            if (current == goal) {
+                pathCount++;
+                return;
+            }
         }
-
-        // Mevcut düğümü ziyaret ettik
         visited[current] = true;
 
-        // Mevcut düğümün komşularını dolaş
         for (Edge e : adjacencyList.get(current)) {
-            int neighbor = e.target; // Edge yapınızda target veya from/to şeklinde olabilir
+            int neighbor = e.target;
             if (!visited[neighbor]) {
                 countAllPaths(neighbor, goal, visited);
             }
         }
-
-        // Geri izleme (backtracking): Başka yolları da denemek için ziyaret durumunu
-        // resetle
-        visited[current] = false;
     }
 
     // -------------------------------------------------------------
@@ -421,9 +413,8 @@ public class Graph {
 
     // -------------------------------------------------------------
     // 10) IsThereACycle(String v1)
-    // Returns true if there is a cycle path that starts AND ends on v1,
-    // i.e., we can leave v1, follow edges, and eventually come back to v1
-    // without repeating any vertex in between.
+    // returns true if there is a cycle path which starts and ends on v1, otherwise
+    // false.
     // -------------------------------------------------------------
     public boolean IsThereACycle(String v1) {
         if (!nameToIndex.containsKey(v1)) {
@@ -435,12 +426,17 @@ public class Graph {
     }
 
     private boolean hasCycleDFS(int current, int start, boolean[] visited, int depth) {
+        // Eğer depth > 0 ve current tekrar start düğümüne eşitse, bir döngü bulunmuş
+        // demektir
         if (depth > 0 && current == start) {
             return true;
         }
         visited[current] = true;
+
         for (Edge e : adjacencyList.get(current)) {
+            // Eğer Edge sınıfınızda komşu düğüm 'e.target' olarak tutuluyorsa:
             int neighbor = e.target;
+            // Eğer neighbor start'a eşitse (ve depth > 0) bir döngü bulunmuş demektir
             if (neighbor == start && depth > 0) {
                 return true;
             }
@@ -450,6 +446,7 @@ public class Graph {
                 }
             }
         }
+
         visited[current] = false;
         return false;
     }
