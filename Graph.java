@@ -3,28 +3,23 @@ import java.util.*;
 
 public class Graph {
 
-    // We will map each city name (String) to an integer index.
+    private int pathCount = 0;
     private Map<String, Integer> nameToIndex = new HashMap<>();
-    // We also keep the reverse mapping if we want to recover the name by index.
     private List<String> indexToName = new ArrayList<>();
-    // adjacencyList[v] will hold a list of edges going out from vertex v
     private List<List<Edge>> adjacencyList = new ArrayList<>();
 
     private boolean isDirected;
 
     private static class Edge {
-        int from;
-        int to;
+        int target;
+        int weight;
 
-        public Edge(int from, int to) {
-            this.from = from;
-            this.to = to;
+        public Edge(int target, int weight) {
+            this.target = target;
+            this.weight = weight;
         }
     }
 
-    /**
-     * Ensures that a city name has a corresponding unique index.
-     */
     private int ensureVertex(String cityName) {
         if (!nameToIndex.containsKey(cityName)) {
             nameToIndex.put(cityName, indexToName.size());
@@ -34,10 +29,6 @@ public class Graph {
         return nameToIndex.get(cityName);
     }
 
-    /**
-     * Add edge from city1 to city2 with the given weight.
-     * If the graph is undirected, also add edge city2 -> city1.
-     */
     private void addEdge(String city1, String city2, int weight) {
         int v1 = ensureVertex(city1);
         int v2 = ensureVertex(city2);
@@ -47,13 +38,6 @@ public class Graph {
         }
     }
 
-    // -------------------------------------------------------------
-    // 1) ReadGraphFromFile()
-    // Example line format:
-    // A -> B:3, C:2, D:1, E:4
-    // The first token ("A") is the source city,
-    // After "->", edges are listed with "C:2" meaning (C, weight=2), etc.
-    // -------------------------------------------------------------
     public void ReadGraphFromFile(String filename) {
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
             String line;
@@ -92,8 +76,35 @@ public class Graph {
     }
 
     // -------------------------------------------------------------
-    // is) IsThereAPath(String v1, String v2)
-    // Returns true if there is at least one path from v1 to v2, false otherwise.
+    // 1) IsDirected()
+    // Returns true if there is a path between vertex v1 and vertex v2 or false,
+    // otherwise.
+    // -------------------------------------------------------------
+    public boolean IsDirected() {
+        for (int u = 0; u < adjacencyList.size(); u++) {
+            for (Edge edge : adjacencyList.get(u)) {
+                int v = edge.target;
+                int weight = edge.weight;
+                boolean reverseEdgeExists = false;
+
+                for (Edge reverseEdge : adjacencyList.get(v)) {
+                    if (reverseEdge.target == u && reverseEdge.weight == weight) {
+                        reverseEdgeExists = true;
+                        break;
+                    }
+                }
+                if (!reverseEdgeExists) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // -------------------------------------------------------------
+    // 2) IsThereAPath(String v1, String v2)
+    // prints the sequence of vertices (names of the vertices) and edgesweights of
+    // the edges between the vertices while starting a BFS fromv1 until reaching v2.
     // -------------------------------------------------------------
     public boolean IsThereAPath(String v1, String v2) {
         if (!nameToIndex.containsKey(v1) || !nameToIndex.containsKey(v2)) {
@@ -113,7 +124,7 @@ public class Graph {
                 return true;
             }
             for (Edge edge : adjacencyList.get(current)) {
-                int neighbor = edge.from;
+                int neighbor = edge.target;
                 if (!visited[neighbor]) {
                     visited[neighbor] = true;
                     queue.add(neighbor);
@@ -124,7 +135,7 @@ public class Graph {
     }
 
     // -------------------------------------------------------------
-    // 2) BFSfromTo(String v1, String v2)
+    // 3) BFSfromTo(String v1, String v2)
     // Print the sequence of vertices (names) + edges (weights)
     // while starting a BFS from v1 until reaching v2.
     // BFS children are visited in ascending order of edge weight.
@@ -157,7 +168,7 @@ public class Graph {
                 return;
             }
             for (Edge edge : adjacencyList.get(current)) {
-                int neighbor = edge.from;
+                int neighbor = edge.target;
                 if (!visited[neighbor]) {
                     visited[neighbor] = true;
                     parent[neighbor] = current;
@@ -195,15 +206,15 @@ public class Graph {
 
     private int getWeight(int from, int to) {
         for (Edge e : adjacencyList.get(from)) {
-            if (e.from == to) {
-                return e.to;
+            if (e.target == to) {
+                return e.weight;
             }
         }
         return -1; // Bulunamadıysa
     }
 
     // -------------------------------------------------------------
-    // 3) DFSfromTo(String v1, String v2)
+    // 4) DFSfromTo(String v1, String v2)
     // Print the sequence of vertices (names) + edges (weights)
     // while starting a DFS from v1 until reaching v2.
     // We'll do a simple recursive DFS.
@@ -240,7 +251,7 @@ public class Graph {
         }
         visited[current] = true;
         for (Edge edge : adjacencyList.get(current)) {
-            int neighbor = edge.from;
+            int neighbor = edge.target;
             if (!visited[neighbor]) {
                 path.add(neighbor);
                 if (dfsCode(neighbor, goal, visited, path)) {
@@ -253,7 +264,7 @@ public class Graph {
     }
 
     // -------------------------------------------------------------
-    // 4) WhatIsShortestPathLength(String v1, String v2)
+    // 5) WhatIsShortestPathLength(String v1, String v2)
     // Returns the MINIMUM sum-of-weights among all simple paths.
     // Implementation without “known” algorithms -> do naive DFS
     // of all paths, track min cost. Potentially expensive!
@@ -282,7 +293,7 @@ public class Graph {
             }
 
             for (Edge edge : adjacencyList.get(current)) {
-                int neighbor = edge.to;
+                int neighbor = edge.weight;
                 if (!visited[neighbor]) {
                     visited[neighbor] = true;
                     distance[neighbor] = distance[current] + 1;
@@ -305,33 +316,49 @@ public class Graph {
     // Count how many distinct simple paths exist from v1 to v2
     // -------------------------------------------------------------
     public int NumberOfSimplePaths(String v1, String v2) {
+        // Eğer graf içinde bu isimlere sahip düğümler yoksa, 0 döndür.
         if (!nameToIndex.containsKey(v1) || !nameToIndex.containsKey(v2)) {
             return 0;
         }
+
+        // Kaynak ve hedef vertex'in indekslerini al
         int start = nameToIndex.get(v1);
         int goal = nameToIndex.get(v2);
 
+        // Ziyaret dizisi
         boolean[] visited = new boolean[adjacencyList.size()];
-        visited[start] = false;
 
+        // Sınıf düzeyinde tanımlanmış bir sayaç (örneğin: private int pathCount;)
+        // olduğundan, burada sıfırlıyoruz.
         pathCount = 0;
+
+        // Tüm basit yolları sayacak metodu çağır
         countAllPaths(start, goal, visited);
+
+        // Sonuç döndür
         return pathCount;
     }
 
-    private int pathCount;
-
     private void countAllPaths(int current, int goal, boolean[] visited) {
+        // Hedefe ulaştıysak, bir yol bulduk demektir
         if (current == goal) {
             pathCount++;
             return;
         }
+
+        // Mevcut düğümü ziyaret ettik
         visited[current] = true;
+
+        // Mevcut düğümün komşularını dolaş
         for (Edge e : adjacencyList.get(current)) {
-            if (!visited[e.from]) {
-                countAllPaths(e.from, goal, visited);
+            int neighbor = e.target; // Edge yapınızda target veya from/to şeklinde olabilir
+            if (!visited[neighbor]) {
+                countAllPaths(neighbor, goal, visited);
             }
         }
+
+        // Geri izleme (backtracking): Başka yolları da denemek için ziyaret durumunu
+        // resetle
         visited[current] = false;
     }
 
@@ -346,7 +373,7 @@ public class Graph {
         }
         int v = nameToIndex.get(v1);
         for (Edge e : adjacencyList.get(v)) {
-            result.add(indexToName.get(e.from));
+            result.add(indexToName.get(e.target));
         }
         return result;
     }
@@ -375,34 +402,7 @@ public class Graph {
     }
 
     // -------------------------------------------------------------
-    // 9) IsDirected()
-    // Return true if the graph is directed, false otherwise.
-    // -------------------------------------------------------------
-    public boolean IsDirected() {
-        for (int u = 0; u < adjacencyList.size(); u++) {
-            for (Edge edge : adjacencyList.get(u)) {
-                int v = edge.from;
-                int weight = edge.to;
-                boolean reverseEdgeExists = false;
-
-                for (Edge reverseEdge : adjacencyList.get(v)) {
-                    if (reverseEdge.from == u && reverseEdge.to == weight) {
-                        reverseEdgeExists = true;
-                        break;
-                    }
-                }
-                if (!reverseEdgeExists) {
-                    return true;
-                }
-            }
-        }
-
-        // All edges have their corresponding reverse edges; the graph is undirected
-        return false;
-    }
-
-    // -------------------------------------------------------------
-    // 10) AreTheyAdjacent(String v1, String v2)
+    // 9) AreTheyAdjacent(String v1, String v2)
     // Return true if v1 and v2 are directly connected by an edge.
     // -------------------------------------------------------------
     public boolean AreTheyAdjacent(String v1, String v2) {
@@ -412,7 +412,7 @@ public class Graph {
         int a = nameToIndex.get(v1);
         int b = nameToIndex.get(v2);
         for (Edge e : adjacencyList.get(a)) {
-            if (e.from == b) {
+            if (e.target == b) {
                 return true;
             }
         }
@@ -420,7 +420,7 @@ public class Graph {
     }
 
     // -------------------------------------------------------------
-    // 11) IsThereACycle(String v1)
+    // 10) IsThereACycle(String v1)
     // Returns true if there is a cycle path that starts AND ends on v1,
     // i.e., we can leave v1, follow edges, and eventually come back to v1
     // without repeating any vertex in between.
@@ -436,13 +436,11 @@ public class Graph {
 
     private boolean hasCycleDFS(int current, int start, boolean[] visited, int depth) {
         if (depth > 0 && current == start) {
-            return true; // cycle found
+            return true;
         }
         visited[current] = true;
         for (Edge e : adjacencyList.get(current)) {
-            int neighbor = e.from;
-            // We can allow returning to 'start' even if visited[start] is true,
-            // but must not return to any other visited vertex
+            int neighbor = e.target;
             if (neighbor == start && depth > 0) {
                 return true;
             }
@@ -457,7 +455,7 @@ public class Graph {
     }
 
     // -------------------------------------------------------------
-    // 12) NumberOfVerticesInComponent(String v1)
+    // 11) NumberOfVerticesInComponent(String v1)
     // Print the number of vertices in the connected component that contains v1.
     // -------------------------------------------------------------
     public int NumberOfVerticesInComponent(String v1) {
@@ -475,9 +473,9 @@ public class Graph {
         while (!queue.isEmpty()) {
             int current = queue.poll();
             for (Edge e : adjacencyList.get(current)) {
-                if (!visited[e.from]) {
-                    visited[e.from] = true;
-                    queue.add(e.from);
+                if (!visited[e.target]) {
+                    visited[e.target] = true;
+                    queue.add(e.target);
                     count++;
                 }
             }
