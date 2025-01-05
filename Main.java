@@ -99,8 +99,7 @@ public class Main {
                 default:
                     System.out.println("Invalid choice. Please select a valid option (1-11).");
             }
-            cont = clearConsole();
-
+            System.out.println("---------------------------------------------");
         }
         scanner.close();
     }
@@ -119,28 +118,5 @@ public class Main {
         System.out.println("10. Check if there's a cycle involving a vertex");
         System.out.println("11. Find the number of vertices in a vertex's connected component");
         System.out.println("12. Exit");
-    }
-
-    public static boolean clearConsole() { // Clear console when runned on terminal
-        System.out.print("back(b) / exit(e) :");
-        Scanner scanner = new Scanner(System.in);
-        String choice = scanner.nextLine();
-        scanner.close();
-        if (choice.equals("b")) {
-            try {
-                if (System.getProperty("os.name").toLowerCase().contains("windows")) {
-                    new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
-                } else {
-                    System.out.print("\033[H\033[2J");
-                    System.out.flush();
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } else if (choice.equals("e")) {
-            return true;
-        }
-        return false;
-
     }
 }

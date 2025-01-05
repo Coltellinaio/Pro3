@@ -33,9 +33,6 @@ public class Graph {
         int v1 = ensureVertex(city1);
         int v2 = ensureVertex(city2);
         adjacencyList.get(v1).add(new Edge(v2, weight));
-        if (!isDirected) {
-            adjacencyList.get(v2).add(new Edge(v1, weight));
-        }
     }
 
     public void ReadGraphFromFile(String filename) {
@@ -359,15 +356,16 @@ public class Graph {
     // Return the names of neighbor vertices of v1
     // -------------------------------------------------------------
     public List<String> Neighbors(String v1) {
-        List<String> result = new ArrayList<>();
         if (!nameToIndex.containsKey(v1)) {
-            return result;
+            return new ArrayList<>();
         }
         int v = nameToIndex.get(v1);
+        Set<String> uniqueNeighbors = new LinkedHashSet<>();
+
         for (Edge e : adjacencyList.get(v)) {
-            result.add(indexToName.get(e.target));
+            uniqueNeighbors.add(indexToName.get(e.target));
         }
-        return result;
+        return new ArrayList<>(uniqueNeighbors);
     }
 
     // -------------------------------------------------------------
@@ -377,16 +375,15 @@ public class Graph {
     // -------------------------------------------------------------
     public List<String> HighestDegree() {
         int maxDeg = 0;
-        int[] AllDegrees = new int[adjacencyList.size()];
         for (int i = 0; i < adjacencyList.size(); i++) {
-            AllDegrees[i] = adjacencyList.get(i).size();
-            if (AllDegrees[i] > maxDeg)
-                maxDeg = AllDegrees[i];
+            if (Neighbors(indexToName.get(i)).size() > maxDeg) {
+                maxDeg = Neighbors(indexToName.get(i)).size();
+            }
         }
 
         List<String> result = new ArrayList<>();
-        for (int i = 0; i < AllDegrees.length; i++) {
-            if (AllDegrees[i] == maxDeg) {
+        for (int i = 0; i < adjacencyList.size(); i++) {
+            if (Neighbors(indexToName.get(i)).size() == maxDeg) {
                 result.add(indexToName.get(i));
             }
         }
@@ -446,8 +443,6 @@ public class Graph {
                 }
             }
         }
-
-        visited[current] = false;
         return false;
     }
 
@@ -456,27 +451,20 @@ public class Graph {
     // Print the number of vertices in the connected component that contains v1.
     // -------------------------------------------------------------
     public int NumberOfVerticesInComponent(String v1) {
+        int total = 0;
         if (!nameToIndex.containsKey(v1)) {
             return 0;
         }
         int start = nameToIndex.get(v1);
-
         boolean[] visited = new boolean[adjacencyList.size()];
-        Deque<Integer> queue = new ArrayDeque<>();
-        queue.add(start);
         visited[start] = true;
-        int count = 1;
-
-        while (!queue.isEmpty()) {
-            int current = queue.poll();
-            for (Edge e : adjacencyList.get(current)) {
-                if (!visited[e.target]) {
-                    visited[e.target] = true;
-                    queue.add(e.target);
-                    count++;
-                }
+        for (int i = 0; i < adjacencyList.size(); i++) {
+            if (Neighbors(indexToName.get(i)).contains(v1)) {
+                total++;
             }
         }
-        return count;
+
+        return total;
     }
+
 }
