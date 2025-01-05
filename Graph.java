@@ -353,9 +353,8 @@ public class Graph {
 
     // -------------------------------------------------------------
     // 8) HighestDegree()
-    // Return the name(s) of vertex(ices) with the highest degree.
-    // For directed graphs, decide if you want out-degree only or total in+out.
-    // Here we’ll just do out-degree for demonstration.
+    // returns the name of the vertex with the highest degree. If there is more than
+    // one, it returns the names of all.
     // -------------------------------------------------------------
     public List<String> HighestDegree() {
         int maxDeg = 0;
@@ -377,25 +376,21 @@ public class Graph {
 
     // -------------------------------------------------------------
     // 9) IsDirected()
+    // Return true if the graph is directed, false otherwise.
     // -------------------------------------------------------------
     public boolean IsDirected() {
         for (int u = 0; u < adjacencyList.size(); u++) {
             for (Edge edge : adjacencyList.get(u)) {
                 int v = edge.from;
                 int weight = edge.to;
-
-                // Flag to check if the reverse edge exists
                 boolean reverseEdgeExists = false;
 
-                // Iterate through the adjacency list of vertex v to find the reverse edge
                 for (Edge reverseEdge : adjacencyList.get(v)) {
                     if (reverseEdge.from == u && reverseEdge.to == weight) {
                         reverseEdgeExists = true;
                         break;
                     }
                 }
-
-                // If the reverse edge does not exist, the graph is directed
                 if (!reverseEdgeExists) {
                     return true;
                 }
