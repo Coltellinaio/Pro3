@@ -92,7 +92,7 @@ public class Graph {
     }
 
     // -------------------------------------------------------------
-    // 2) IsThereAPath(String v1, String v2)
+    // is) IsThereAPath(String v1, String v2)
     // Returns true if there is at least one path from v1 to v2, false otherwise.
     // -------------------------------------------------------------
     public boolean IsThereAPath(String v1, String v2) {
@@ -124,7 +124,7 @@ public class Graph {
     }
 
     // -------------------------------------------------------------
-    // 3) BFSfromTo(String v1, String v2)
+    // 2) BFSfromTo(String v1, String v2)
     // Print the sequence of vertices (names) + edges (weights)
     // while starting a BFS from v1 until reaching v2.
     // BFS children are visited in ascending order of edge weight.
@@ -181,6 +181,7 @@ public class Graph {
             reversedPath.add(path.get(i));
         }
 
+        // PATH maker yapabilirim
         String pathStr = "";
         for (int i = 0; i < reversedPath.size(); i++) {
             pathStr += indexToName.get(reversedPath.get(i));
@@ -202,7 +203,7 @@ public class Graph {
     }
 
     // -------------------------------------------------------------
-    // 4) DFSfromTo(String v1, String v2)
+    // 3) DFSfromTo(String v1, String v2)
     // Print the sequence of vertices (names) + edges (weights)
     // while starting a DFS from v1 until reaching v2.
     // We'll do a simple recursive DFS.
@@ -219,12 +220,12 @@ public class Graph {
         List<Integer> path = new ArrayList<>();
         path.add(start);
 
-        if (!dfsHelper(start, finish, visited, path)) {
+        if (!dfsCode(start, finish, visited, path)) {
             System.out.println(v1 + " --x-- " + v2 + " (no DFS path found)");
         }
     }
 
-    private boolean dfsHelper(int current, int goal, boolean[] visited, List<Integer> path) {
+    private boolean dfsCode(int current, int goal, boolean[] visited, List<Integer> path) {
         if (current == goal) {
             String pathStr = "";
             for (int i = 0; i < path.size(); i++) {
@@ -242,7 +243,7 @@ public class Graph {
             int neighbor = edge.from;
             if (!visited[neighbor]) {
                 path.add(neighbor);
-                if (dfsHelper(neighbor, goal, visited, path)) {
+                if (dfsCode(neighbor, goal, visited, path)) {
                     return true;
                 }
                 path.remove(path.size() - 1);
@@ -252,47 +253,51 @@ public class Graph {
     }
 
     // -------------------------------------------------------------
-    // 5) WhatIsShortestPathLength(String v1, String v2)
+    // 4) WhatIsShortestPathLength(String v1, String v2)
     // Returns the MINIMUM sum-of-weights among all simple paths.
     // Implementation without “known” algorithms -> do naive DFS
     // of all paths, track min cost. Potentially expensive!
     // -------------------------------------------------------------
     public int WhatIsShortestPathLength(String v1, String v2) {
         if (!nameToIndex.containsKey(v1) || !nameToIndex.containsKey(v2)) {
+            System.out.println(v1 + " --x-- " + v2);
             return -1;
         }
         int start = nameToIndex.get(v1);
         int goal = nameToIndex.get(v2);
 
         boolean[] visited = new boolean[adjacencyList.size()];
-        visited[start] = false;
+        int[] distance = new int[adjacencyList.size()];
 
-        // We'll track a global minimum
-        this.minCost = Integer.MAX_VALUE;
-        dfsAllPaths(start, goal, 0, visited);
-        return (minCost == Integer.MAX_VALUE) ? -1 : minCost;
-    }
+        Queue<Integer> queue = new LinkedList<>();
+        queue.offer(start);
+        visited[start] = true;
+        distance[start] = 0;
 
-    private int minCost;
+        while (!queue.isEmpty()) {
+            int current = queue.poll();
 
-    /**
-     * Backtracking DFS to explore all simple paths from current to goal.
-     * costSoFar accumulates the sum of weights along the path.
-     */
-    private void dfsAllPaths(int current, int goal, int costSoFar, boolean[] visited) {
-        if (current == goal) {
-            // update global min cost
-            minCost = Math.min(minCost, costSoFar);
-            return;
-        }
-        visited[current] = true;
+            if (current == goal) {
+                return distance[current];
+            }
 
-        for (Edge e : adjacencyList.get(current)) {
-            if (!visited[e.from]) {
-                dfsAllPaths(e.from, goal, costSoFar + e.to, visited);
+            for (Edge edge : adjacencyList.get(current)) {
+                int neighbor = edge.to;
+                if (!visited[neighbor]) {
+                    visited[neighbor] = true;
+                    distance[neighbor] = distance[current] + 1;
+                    queue.offer(neighbor);
+                }
             }
         }
-        visited[current] = false;
+
+        int sum = 0;
+        for (int i = 0; i < distance.length; i++) {
+            if (distance[i] != 0) {
+                sum++;
+            }
+        }
+        return sum - 1;
     }
 
     // -------------------------------------------------------------
