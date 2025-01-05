@@ -102,7 +102,6 @@ public class Graph {
         int start = nameToIndex.get(v1);
         int goal = nameToIndex.get(v2);
 
-        // CAHNGE THİS IMPLEMENT
         boolean[] visited = new boolean[adjacencyList.size()];
         Deque<Integer> queue = new ArrayDeque<>();
         queue.add(start);
@@ -135,6 +134,7 @@ public class Graph {
             System.out.println("No such vertices.");
             return;
         }
+
         int start = nameToIndex.get(v1);
         int goal = nameToIndex.get(v2);
 
@@ -152,8 +152,10 @@ public class Graph {
 
         while (!queue.isEmpty()) {
             int current = queue.poll();
-            if (current == goal)
+            if (current == goal) {
                 System.out.println("Path is: " + printPathWithWeightsBFS(parent, start, goal));
+                return;
+            }
             for (Edge edge : adjacencyList.get(current)) {
                 int neighbor = edge.from;
                 if (!visited[neighbor]) {
@@ -166,9 +168,9 @@ public class Graph {
         System.out.println("Between " + v1 + " ve " + v2 + "contains no way.");
     }
 
-    private String printPathWithWeightsBFS(int[] parent, int start, int goal) {
+    private String printPathWithWeightsBFS(int[] parent, int start, int target) {
         List<Integer> path = new ArrayList<>();
-        int cur = goal;
+        int cur = target;
         while (cur != -1) {
             path.add(cur);
             cur = parent[cur];
@@ -190,12 +192,10 @@ public class Graph {
         return pathStr;
     }
 
-    // Aşağıdaki metod, iki düğüm arasındaki kenarın ağırlığını bulmak için
-    // kullanılır
     private int getWeight(int from, int to) {
         for (Edge e : adjacencyList.get(from)) {
             if (e.from == to) {
-                return e.to; // `Edge.from` hedef düğümü, `Edge.to` ise ağırlığı temsil ediyor
+                return e.to;
             }
         }
         return -1; // Bulunamadıysa
@@ -226,13 +226,18 @@ public class Graph {
 
     private boolean dfsHelper(int current, int goal, boolean[] visited, List<Integer> path) {
         if (current == goal) {
-            // Print path
-            printDFSPath(path);
+            String pathStr = "";
+            for (int i = 0; i < path.size(); i++) {
+                pathStr += indexToName.get(path.get(i));
+                if (i < path.size() - 1) {
+                    int w = getWeight(path.get(i), path.get(i + 1));
+                    pathStr += " -" + w + "-> ";
+                }
+            }
+            System.out.println("DFS path: " + pathStr);
             return true;
         }
         visited[current] = true;
-        // If you want edges visited in ascending weight, sort adjacency by weight
-        // (already sorted in the constructor)
         for (Edge edge : adjacencyList.get(current)) {
             int neighbor = edge.from;
             if (!visited[neighbor]) {
@@ -244,18 +249,6 @@ public class Graph {
             }
         }
         return false;
-    }
-
-    private void printDFSPath(List<Integer> path) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < path.size(); i++) {
-            sb.append(indexToName.get(path.get(i)));
-            if (i < path.size() - 1) {
-                int w = getWeight(path.get(i), path.get(i + 1));
-                sb.append(" -").append(w).append("-> ");
-            }
-        }
-        System.out.println("DFS path: " + sb.toString());
     }
 
     // -------------------------------------------------------------
